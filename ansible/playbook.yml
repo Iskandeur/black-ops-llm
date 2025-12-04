@@ -1,0 +1,36 @@
+- name: Wake up the AI
+  hosts: gpu_hosts
+  become: yes
+  tasks:
+    - name: Ensure Docker service is running
+      service:
+        name: docker
+        state: started
+
+    - name: Start Ollama (GPU Mode)
+      docker_container:
+        name: ollama
+        image: ollama/ollama:latest
+        state: started
+        restart_policy: always
+        ports:
+          - "11434:11434"
+        volumes:
+          - ollama:/root/.ollama
+        # Critical part for Nvidia:
+        device_requests:
+          - driver: nvidia
+            count: -1
+            capabilities: [['gpu']]
+
+    - name: Start Open WebUI
+      docker_container:
+        name: open-webui
+        image: ghcr.io/open-webui/open-webui:main
+        state: started
+        restart_policy: always
+        network_mode: host # To easily talk to Ollama locally
+        env:
+          OLLAMA_BASE_URL: "http://127.0.0.1:11434"
+        volumes:
+          - open-webui:/app/backend/data

@@ -1,0 +1,12 @@
+.DS_Store
+*.tfstate
+*.tfstate.backup
+.terraform/
+*.pem
+*.pub
+openrc.sh
+variables.tfvars
+.env
+packer_cache/
+ansible/inventory.ini
+ansible/private_key.pem
